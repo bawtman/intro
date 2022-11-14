@@ -1,129 +1,25 @@
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//         P5.GUI  :    Slider-Range Example 3                                //
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
-
-// This example shows how to use *addObject* instead of *addGlobals*
-// to provide gui parameters via a javascript object
-
-let params = {
-
-    // seeds
-    seeds: 500,
-    seedsMin: 1,
-    seedsMax: 2000,
-
-    // angle (phi)
-    angle: 360 * (Math.sqrt(5) - 1) / 2,
-    angleMax: 360,
-    angleStep: 0.1,
-
-    // radius of the seed
-    radius: 3,
-    radiusMin: 0.5,
-    radiusMax: 5,
-    radiusStep: 0.1,
-
-    seedColor: '#ff00dd',
-
-    // scale
-    zoom: 15,
-    zoomMax: 50,
-    zoomStep: 0.1,
-
-    opacity: 150,
-    opacityMax: 255,
-
-    bgColor: [0, 0, 0]
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//color slider
-var r;
-var g;
-var b;
-
-var rslider = 0;
-var gslider = 0;
-var bslider = 0;
-
 function setup() {
-  createCanvas(400, 400);
-  rslider = createSlider(0, 255, 0, 5);
-  gslider = createSlider(0, 255, 0, 5);
-  bslider = createSlider(0, 255, 0, 5);
-  
+  createCanvas(300, 500);
+  noSmooth();
 }
 
 function draw() {
-  //console.log(r);
-  var r = rslider.value();
-var g = gslider.value();
-var b = bslider.value();
-  background(r, g, b);
-}
+  const m = 100;
 
-function mousePressed(){
-	//r = random(100, 255);
-  //console.log(r);
-}
-//////////////////////////////////////////////////////////////////////////////
-// the gui object
-let gui;
+  const topR = 255 * noise(frameCount / m);
+  const topG = 255 * noise(1000 + frameCount / m);
+  const topB = 255 * noise(2000 + frameCount / m);
+  const bottomR = 255 * noise(3000 + frameCount / m);
+  const bottomG = 255 * noise(4000  + frameCount / m);
+  const bottomB = 255 * noise(5000 + frameCount / m);
 
-function setup() {
+  const topColor = color(topR, topG, topB);
+  const bottomColor = color(bottomR, bottomG, bottomB);
 
-    // all angles in degrees (0 .. 360)
-    angleMode(DEGREES);
+  for(let y = 0; y < height; y++) {
+    const lineColor = lerpColor(topColor, bottomColor, y / height);
 
-    // create a canvas that fills the window
-    createCanvas(windowWidth, windowHeight);
-
-    // create the GUI from a settings object
-    gui = createGui('slider-range-1');
-    gui.addObject(params);
-
-    // only call draw when then gui is changed
-    noLoop();
-
-}
-
-
-function draw() {
-
-    // hello darkness my old friend
-    background(params.bgColor);
-
-    // let the seeds be filleth
-    let c = color(params.seedColor);
-    fill(red(c), green(c), blue(c), params.opacity);
-    stroke(0, params.opacity);
-
-    // absolute radius
-    let r = params.radius * params.zoom;
-
-    push();
-
-    // go to the center of the sunflower
-    translate(width / 2, height / 2);
-
-    // rotate around the center while going outwards
-    for (let i = 0; i < params.seeds; i++) {
-        push();
-        rotate(i * params.angle);
-        // distance to the center of the sunflower
-        let d = sqrt(i + 0.5) * params.zoom;
-        ellipse(d, 0, r, r);
-        pop();
-    }
-
-    pop();
-
-}
-
-// dynamically adjust the canvas to the window
-function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    stroke(lineColor);
+    line(0, y, width, y);
+  }
 }
